@@ -109,6 +109,22 @@ const Desktop = () => {
         ))}
       </AnimatePresence>
 
+      {/* Floating voice control */}
+      <div className="fixed bottom-20 right-4 z-50">
+        <VoiceControl onTranscript={(text) => {
+          const lower = text.toLowerCase();
+          if (lower.includes("open notes")) handleOpenApp("notes");
+          else if (lower.includes("open terminal")) handleOpenApp("terminal");
+          else if (lower.includes("open dashboard")) handleOpenApp("dashboard");
+          else if (lower.includes("open settings")) handleOpenApp("settings");
+          else if (lower.includes("assistant") || lower.includes("vyom")) handleOpenApp("assistant");
+          else {
+            handleOpenApp("assistant");
+            notify("VYOM Voice", `"${text}"`);
+          }
+        }} />
+      </div>
+
       {/* Notifications */}
       <NotificationPopup notifications={notifications} />
 
