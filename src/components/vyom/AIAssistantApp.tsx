@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Bot, User } from "lucide-react";
 import { ChatMessage } from "./types";
+import VoiceControl from "./VoiceControl";
 
 interface AIAssistantProps {
   onCommand?: (cmd: string) => void;
