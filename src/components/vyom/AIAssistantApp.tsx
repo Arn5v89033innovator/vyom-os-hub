@@ -49,23 +49,23 @@ const AIAssistantApp = ({ onCommand }: AIAssistantProps) => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = (overrideText?: string) => {
+    const text = overrideText || input;
+    if (!text.trim()) return;
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: text,
       timestamp: new Date(),
     };
 
-    const lower = input.toLowerCase().trim();
-    // Trigger app commands
+    const lower = text.toLowerCase().trim();
     if (lower.includes("open notes")) onCommand?.("notes");
     else if (lower.includes("open terminal")) onCommand?.("terminal");
     else if (lower.includes("open dashboard")) onCommand?.("dashboard");
     else if (lower.includes("open settings")) onCommand?.("settings");
 
-    const response = getResponse(input);
+    const response = getResponse(text);
     const assistantMsg: ChatMessage = {
       id: (Date.now() + 1).toString(),
       role: "assistant",
