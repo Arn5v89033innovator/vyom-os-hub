@@ -121,14 +121,10 @@ const AIAssistantApp = ({ onCommand }: AIAssistantProps) => {
             className="flex-1 bg-secondary/30 border border-border rounded-lg px-3 py-2 text-xs font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/30"
           />
           <VoiceControl onTranscript={(text) => {
-            setInput(text);
-            setTimeout(() => {
-              const fakeEvent = { key: "Enter" } as React.KeyboardEvent;
-              handleSend();
-            }, 100);
+            handleSend(text);
           }} />
           <button
-            onClick={handleSend}
+            onClick={() => handleSend()}
             className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
           >
             <Send className="w-3.5 h-3.5 text-primary" />
