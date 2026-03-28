@@ -11,6 +11,7 @@ import DashboardApp from "./DashboardApp";
 import SettingsApp from "./SettingsApp";
 import AIAssistantApp from "./AIAssistantApp";
 import NotificationPopup from "./NotificationPopup";
+import VoiceControl from "./VoiceControl";
 
 const apps: DesktopApp[] = [
   { id: "notes", title: "Notes", icon: "📝" },
