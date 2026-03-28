@@ -1,0 +1,125 @@
+import { useState, useCallback } from "react";
+import { AnimatePresence } from "framer-motion";
+import { useWindowManager } from "./useWindowManager";
+import { DesktopApp, Notification } from "./types";
+import Taskbar from "./Taskbar";
+import DesktopIcon from "./DesktopIcon";
+import AppWindow from "./AppWindow";
+import NotesApp from "./NotesApp";
+import TerminalApp from "./TerminalApp";
+import DashboardApp from "./DashboardApp";
+import SettingsApp from "./SettingsApp";
+import AIAssistantApp from "./AIAssistantApp";
+import NotificationPopup from "./NotificationPopup";
+
+const apps: DesktopApp[] = [
+  { id: "notes", title: "Notes", icon: "📝" },
+  { id: "terminal", title: "Terminal", icon: "⬛" },
+  { id: "dashboard", title: "Mission Dashboard", icon: "📊" },
+  { id: "settings", title: "Settings", icon: "⚙️" },
+  { id: "assistant", title: "VYOM AI", icon: "🤖" },
+];
+
+const Desktop = () => {
+  const {
+    activeWindows,
+    taskbarWindows,
+    openWindow,
+    closeWindow,
+    minimizeWindow,
+    toggleMaximize,
+    focusWindow,
+    updatePosition,
+  } = useWindowManager();
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  const notify = useCallback((title: string, message: string) => {
+    const notif: Notification = { id: Date.now().toString(), title, message, timestamp: new Date() };
+    setNotifications((prev) => [...prev, notif]);
+    setTimeout(() => {
+      setNotifications((prev) => prev.filter((n) => n.id !== notif.id));
+    }, 3000);
+  }, []);
+
+  const handleOpenApp = useCallback((id: string) => {
+    openWindow(id);
+    const app = apps.find((a) => a.id === id);
+    if (app) notify(app.title, `${app.title} opened`);
+  }, [openWindow, notify]);
+
+  const handleWindowClick = useCallback((id: string) => {
+    focusWindow(id);
+  }, [focusWindow]);
+
+  const handleAICommand = useCallback((cmd: string) => {
+    handleOpenApp(cmd);
+  }, [handleOpenApp]);
+
+  const renderAppContent = (appId: string) => {
+    switch (appId) {
+      case "notes": return <NotesApp />;
+      case "terminal": return <TerminalApp />;
+      case "dashboard": return <DashboardApp />;
+      case "settings": return <SettingsApp />;
+      case "assistant": return <AIAssistantApp onCommand={handleAICommand} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-background overflow-hidden">
+      {/* Background grid */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: `
+          linear-gradient(hsl(var(--neon-cyan) / 0.3) 1px, transparent 1px),
+          linear-gradient(90deg, hsl(var(--neon-cyan) / 0.3) 1px, transparent 1px)
+        `,
+        backgroundSize: "80px 80px",
+      }} />
+
+      {/* Desktop icons */}
+      <div className="absolute top-4 left-4 flex flex-col gap-1 z-10">
+        {apps.map((app, i) => (
+          <DesktopIcon
+            key={app.id}
+            icon={app.icon}
+            title={app.title}
+            onClick={() => handleOpenApp(app.id)}
+            delay={i * 0.1}
+          />
+        ))}
+      </div>
+
+      {/* Windows */}
+      <AnimatePresence>
+        {activeWindows.map((win) => (
+          <AppWindow
+            key={win.id}
+            window={win}
+            onClose={() => closeWindow(win.id)}
+            onMinimize={() => minimizeWindow(win.id)}
+            onToggleMaximize={() => toggleMaximize(win.id)}
+            onFocus={() => focusWindow(win.id)}
+            onUpdatePosition={(pos) => updatePosition(win.id, pos)}
+          >
+            {renderAppContent(win.id)}
+          </AppWindow>
+        ))}
+      </AnimatePresence>
+
+      {/* Notifications */}
+      <NotificationPopup notifications={notifications} />
+
+      {/* Taskbar */}
+      <Taskbar
+        taskbarWindows={taskbarWindows}
+        onWindowClick={handleWindowClick}
+        onOpenApp={handleOpenApp}
+        apps={apps}
+      />
+    </div>
+  );
+};
+
+export default Desktop;
