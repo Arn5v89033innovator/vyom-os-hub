@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Bot, User } from "lucide-react";
 import { ChatMessage } from "./types";
+import VoiceControl from "./VoiceControl";
 
 interface AIAssistantProps {
   onCommand?: (cmd: string) => void;
@@ -48,23 +49,23 @@ const AIAssistantApp = ({ onCommand }: AIAssistantProps) => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = (overrideText?: string) => {
+    const text = overrideText || input;
+    if (!text.trim()) return;
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: text,
       timestamp: new Date(),
     };
 
-    const lower = input.toLowerCase().trim();
-    // Trigger app commands
+    const lower = text.toLowerCase().trim();
     if (lower.includes("open notes")) onCommand?.("notes");
     else if (lower.includes("open terminal")) onCommand?.("terminal");
     else if (lower.includes("open dashboard")) onCommand?.("dashboard");
     else if (lower.includes("open settings")) onCommand?.("settings");
 
-    const response = getResponse(input);
+    const response = getResponse(text);
     const assistantMsg: ChatMessage = {
       id: (Date.now() + 1).toString(),
       role: "assistant",
@@ -119,8 +120,11 @@ const AIAssistantApp = ({ onCommand }: AIAssistantProps) => {
             placeholder="Ask VYOM..."
             className="flex-1 bg-secondary/30 border border-border rounded-lg px-3 py-2 text-xs font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/30"
           />
+          <VoiceControl onTranscript={(text) => {
+            handleSend(text);
+          }} />
           <button
-            onClick={handleSend}
+            onClick={() => handleSend()}
             className="p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
           >
             <Send className="w-3.5 h-3.5 text-primary" />
