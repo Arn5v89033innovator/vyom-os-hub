@@ -21,6 +21,7 @@ const AppWindow = ({
   onToggleMaximize,
   onFocus,
   onUpdatePosition,
+  onDragEnd,
   children,
 }: AppWindowProps) => {
   const dragRef = useRef<HTMLDivElement>(null);
