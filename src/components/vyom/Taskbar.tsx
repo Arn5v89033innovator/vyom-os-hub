@@ -15,6 +15,14 @@ const Taskbar = ({ taskbarWindows, onWindowClick, onOpenApp, apps }: TaskbarProp
   const [showLauncher, setShowLauncher] = useState(false);
   const [search, setSearch] = useState("");
 
+  const handleTaskbarClick = (w: WindowState) => {
+    if (w.isMinimized) {
+      onRestoreWindow(w.id);
+    } else {
+      onWindowClick(w.id);
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
