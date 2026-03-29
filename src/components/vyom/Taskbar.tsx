@@ -6,11 +6,12 @@ import { WindowState, DesktopApp } from "./types";
 interface TaskbarProps {
   taskbarWindows: WindowState[];
   onWindowClick: (id: string) => void;
+  onRestoreWindow: (id: string) => void;
   onOpenApp: (id: string) => void;
   apps: DesktopApp[];
 }
 
-const Taskbar = ({ taskbarWindows, onWindowClick, onOpenApp, apps }: TaskbarProps) => {
+const Taskbar = ({ taskbarWindows, onWindowClick, onRestoreWindow, onOpenApp, apps }: TaskbarProps) => {
   const [time, setTime] = useState(new Date());
   const [showLauncher, setShowLauncher] = useState(false);
   const [search, setSearch] = useState("");
