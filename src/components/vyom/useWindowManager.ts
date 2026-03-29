@@ -88,6 +88,7 @@ export const useWindowManager = () => {
     openWindow,
     closeWindow,
     minimizeWindow,
+    restoreWindow,
     toggleMaximize,
     focusWindow,
     updatePosition,

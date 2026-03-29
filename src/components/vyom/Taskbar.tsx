@@ -52,7 +52,7 @@ const Taskbar = ({ taskbarWindows, onWindowClick, onRestoreWindow, onOpenApp, ap
           {taskbarWindows.map((w) => (
             <button
               key={w.id}
-              onClick={() => onWindowClick(w.id)}
+              onClick={() => handleTaskbarClick(w)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-body transition-all ${
                 w.isMinimized
                   ? "bg-secondary/30 text-muted-foreground"
