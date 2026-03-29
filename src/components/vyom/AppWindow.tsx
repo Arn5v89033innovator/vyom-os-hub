@@ -46,7 +46,13 @@ const AppWindow = ({
         y: Math.max(0, e.clientY - dragOffset.current.y),
       });
     };
-    const handleUp = () => setIsDragging(false);
+    const handleUp = () => {
+      setIsDragging(false);
+      if (onDragEnd) {
+        const rect = dragRef.current?.getBoundingClientRect();
+        if (rect) onDragEnd({ x: rect.left, y: rect.top });
+      }
+    };
     window.addEventListener("mousemove", handleMove);
     window.addEventListener("mouseup", handleUp);
     return () => {

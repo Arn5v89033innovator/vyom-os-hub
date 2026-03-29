@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useWindowManager } from "./useWindowManager";
 import { DesktopApp, Notification } from "./types";
@@ -12,6 +12,7 @@ import SettingsApp from "./SettingsApp";
 import AIAssistantApp from "./AIAssistantApp";
 import NotificationPopup from "./NotificationPopup";
 import VoiceControl from "./VoiceControl";
+import DesktopWidgets from "./DesktopWidgets";
 
 const apps: DesktopApp[] = [
   { id: "notes", title: "Notes", icon: "📝" },
@@ -28,12 +29,20 @@ const Desktop = () => {
     openWindow,
     closeWindow,
     minimizeWindow,
+    restoreWindow,
     toggleMaximize,
     focusWindow,
     updatePosition,
+    snapWindow,
   } = useWindowManager();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [darkMode, setDarkMode] = useState(true);
+  const [snapIndicator, setSnapIndicator] = useState<"left" | "right" | null>(null);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("light", !darkMode);
+  }, [darkMode]);
 
   const notify = useCallback((title: string, message: string) => {
     const notif: Notification = { id: Date.now().toString(), title, message, timestamp: new Date() };
@@ -57,12 +66,33 @@ const Desktop = () => {
     handleOpenApp(cmd);
   }, [handleOpenApp]);
 
+  const handleDragPosition = useCallback((id: string, pos: { x: number; y: number }) => {
+    updatePosition(id, pos);
+    // Show snap indicators
+    if (pos.x <= 5) {
+      setSnapIndicator("left");
+    } else if (pos.x + 100 >= window.innerWidth - 5) {
+      setSnapIndicator("right");
+    } else {
+      setSnapIndicator(null);
+    }
+  }, [updatePosition]);
+
+  const handleDragEnd = useCallback((id: string, pos: { x: number; y: number }) => {
+    if (pos.x <= 5) {
+      snapWindow(id, "left");
+    } else if (pos.x + 100 >= window.innerWidth - 5) {
+      snapWindow(id, "right");
+    }
+    setSnapIndicator(null);
+  }, [snapWindow]);
+
   const renderAppContent = (appId: string) => {
     switch (appId) {
       case "notes": return <NotesApp />;
       case "terminal": return <TerminalApp />;
       case "dashboard": return <DashboardApp />;
-      case "settings": return <SettingsApp />;
+      case "settings": return <SettingsApp darkMode={darkMode} onToggleDarkMode={() => setDarkMode(!darkMode)} />;
       case "assistant": return <AIAssistantApp onCommand={handleAICommand} />;
       default: return null;
     }
@@ -79,6 +109,11 @@ const Desktop = () => {
         backgroundSize: "80px 80px",
       }} />
 
+      {/* Snap indicators */}
+      {snapIndicator && (
+        <div className={`fixed top-0 ${snapIndicator === "left" ? "left-0" : "right-0"} w-1/2 h-[calc(100vh-56px)] border-2 border-primary/40 bg-primary/5 z-40 pointer-events-none rounded-lg transition-opacity`} />
+      )}
+
       {/* Desktop icons */}
       <div className="absolute top-4 left-4 flex flex-col gap-1 z-10">
         {apps.map((app, i) => (
@@ -92,6 +127,9 @@ const Desktop = () => {
         ))}
       </div>
 
+      {/* Desktop Widgets */}
+      <DesktopWidgets />
+
       {/* Windows */}
       <AnimatePresence>
         {activeWindows.map((win) => (
@@ -102,7 +140,8 @@ const Desktop = () => {
             onMinimize={() => minimizeWindow(win.id)}
             onToggleMaximize={() => toggleMaximize(win.id)}
             onFocus={() => focusWindow(win.id)}
-            onUpdatePosition={(pos) => updatePosition(win.id, pos)}
+            onUpdatePosition={(pos) => handleDragPosition(win.id, pos)}
+            onDragEnd={(pos) => handleDragEnd(win.id, pos)}
           >
             {renderAppContent(win.id)}
           </AppWindow>
@@ -132,6 +171,7 @@ const Desktop = () => {
       <Taskbar
         taskbarWindows={taskbarWindows}
         onWindowClick={handleWindowClick}
+        onRestoreWindow={restoreWindow}
         onOpenApp={handleOpenApp}
         apps={apps}
       />
