@@ -6,14 +6,23 @@ import { WindowState, DesktopApp } from "./types";
 interface TaskbarProps {
   taskbarWindows: WindowState[];
   onWindowClick: (id: string) => void;
+  onRestoreWindow: (id: string) => void;
   onOpenApp: (id: string) => void;
   apps: DesktopApp[];
 }
 
-const Taskbar = ({ taskbarWindows, onWindowClick, onOpenApp, apps }: TaskbarProps) => {
+const Taskbar = ({ taskbarWindows, onWindowClick, onRestoreWindow, onOpenApp, apps }: TaskbarProps) => {
   const [time, setTime] = useState(new Date());
   const [showLauncher, setShowLauncher] = useState(false);
   const [search, setSearch] = useState("");
+
+  const handleTaskbarClick = (w: WindowState) => {
+    if (w.isMinimized) {
+      onRestoreWindow(w.id);
+    } else {
+      onWindowClick(w.id);
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
@@ -43,7 +52,7 @@ const Taskbar = ({ taskbarWindows, onWindowClick, onOpenApp, apps }: TaskbarProp
           {taskbarWindows.map((w) => (
             <button
               key={w.id}
-              onClick={() => onWindowClick(w.id)}
+              onClick={() => handleTaskbarClick(w)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-body transition-all ${
                 w.isMinimized
                   ? "bg-secondary/30 text-muted-foreground"

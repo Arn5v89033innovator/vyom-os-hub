@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Monitor, Palette, Info, Zap, Moon, Sun } from "lucide-react";
 
-const SettingsApp = () => {
+interface SettingsAppProps {
+  darkMode: boolean;
+  onToggleDarkMode: () => void;
+}
+
+const SettingsApp = ({ darkMode, onToggleDarkMode }: SettingsAppProps) => {
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
 
   return (
     <div className="h-full overflow-auto p-5 space-y-5">
@@ -23,11 +27,11 @@ const SettingsApp = () => {
             <span className="font-body text-xs text-foreground/70">Dark Mode</span>
           </div>
           <button
-            onClick={() => setDarkMode(!darkMode)}
+            onClick={onToggleDarkMode}
             className={`w-10 h-5 rounded-full transition-colors relative ${darkMode ? "bg-primary/30" : "bg-secondary"}`}
           >
             <div
-              className={`w-4 h-4 rounded-full bg-primary absolute top-0.5 transition-all ${darkMode ? "left-5.5" : "left-0.5"}`}
+              className="w-4 h-4 rounded-full bg-primary absolute top-0.5 transition-all"
               style={{ left: darkMode ? "22px" : "2px" }}
             />
           </button>

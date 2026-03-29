@@ -10,6 +10,7 @@ interface AppWindowProps {
   onToggleMaximize: () => void;
   onFocus: () => void;
   onUpdatePosition: (pos: { x: number; y: number }) => void;
+  onDragEnd?: (pos: { x: number; y: number }) => void;
   children: React.ReactNode;
 }
 
@@ -20,6 +21,7 @@ const AppWindow = ({
   onToggleMaximize,
   onFocus,
   onUpdatePosition,
+  onDragEnd,
   children,
 }: AppWindowProps) => {
   const dragRef = useRef<HTMLDivElement>(null);
@@ -44,7 +46,13 @@ const AppWindow = ({
         y: Math.max(0, e.clientY - dragOffset.current.y),
       });
     };
-    const handleUp = () => setIsDragging(false);
+    const handleUp = () => {
+      setIsDragging(false);
+      if (onDragEnd) {
+        const rect = dragRef.current?.getBoundingClientRect();
+        if (rect) onDragEnd({ x: rect.left, y: rect.top });
+      }
+    };
     window.addEventListener("mousemove", handleMove);
     window.addEventListener("mouseup", handleUp);
     return () => {
