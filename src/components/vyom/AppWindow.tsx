@@ -10,6 +10,7 @@ interface AppWindowProps {
   onToggleMaximize: () => void;
   onFocus: () => void;
   onUpdatePosition: (pos: { x: number; y: number }) => void;
+  onDragEnd?: (pos: { x: number; y: number }) => void;
   children: React.ReactNode;
 }
 
