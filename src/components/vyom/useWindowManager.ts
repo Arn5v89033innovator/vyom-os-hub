@@ -39,6 +39,13 @@ export const useWindowManager = () => {
     setWindows((prev) => prev.map((w) => (w.id === id ? { ...w, isMinimized: true } : w)));
   }, []);
 
+  const restoreWindow = useCallback((id: string) => {
+    setMaxZ((z) => {
+      setWindows((prev) => prev.map((w) => (w.id === id ? { ...w, isMinimized: false, zIndex: z + 1 } : w)));
+      return z + 1;
+    });
+  }, []);
+
   const toggleMaximize = useCallback((id: string) => {
     setWindows((prev) =>
       prev.map((w) => (w.id === id ? { ...w, isMaximized: !w.isMaximized } : w))
